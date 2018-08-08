@@ -1,0 +1,1 @@
+from gym_gazebo_hsr.envs.gazebo_hsr_assembly_env import GazeboHsrAssemblyEnv
