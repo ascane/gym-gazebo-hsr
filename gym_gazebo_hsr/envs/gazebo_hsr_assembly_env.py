@@ -1,19 +1,14 @@
-import gym
-from gym import error, spaces, utils
-from gym.utils import seeding
+from gazebo_env import GazeboEnv
 
 
-class GazeboHsrAssemblyEnv(gym.Env):
-  metadata = {'render.modes': ['human']}
-
+class GazeboHsrAssemblyEnv(GazeboEnv):
     def __init__(self):
+        # Launch the simulation with the given launch file
+        GazeboEnv.__init__(self, "gazebo_hsr_assembly-v0.launch")
         pass
 
-    def step(self, action):
+    def _step(self, action):
         pass
 
-    def reset(self):
-        pass
-
-    def render(self, mode='human', close=False):
+    def _reset(self):
         pass

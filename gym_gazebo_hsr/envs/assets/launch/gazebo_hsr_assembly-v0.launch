@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<launch>
+  <include file="$(find hsrb_gazebo_launch)/launch/include/hsrb_gazebo_common.xml" >
+    <arg name="map" value="$(find tmc_potential_maps)/maps/white_space/map.yaml" />
+    <arg name="world_name" value="/home/chia-man/git/gym-gazebo-hsr/gym_gazebo_hsr/envs/assets/worlds/hsr_assembly.world" />
+    <arg name="robot_pos" value="-x 0 -y 0 -z 0 -Y 0" />
+    <arg name="use_laser_odom" value="false" />
+    <arg name="rviz" value="false" />
+  </include>
+</launch>
