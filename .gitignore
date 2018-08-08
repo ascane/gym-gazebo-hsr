@@ -1,0 +1,7 @@
+*.egg-info
+*.pyc
+*.py~
+.idea
+logs/
+*~
+log.txt
