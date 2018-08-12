@@ -79,105 +79,6 @@
       <elevation>0</elevation>
       <heading_deg>0</heading_deg>
     </spherical_coordinates>
-    <state world_name='default'>
-      <sim_time>69 621000000</sim_time>
-      <real_time>90 366857740</real_time>
-      <wall_time>1533054307 657875988</wall_time>
-      <iterations>69621</iterations>
-      <model name='base_plate'>
-        <pose frame=''>1.18072 -0.529223 0.515 4.2e-05 -0.000394 3e-06</pose>
-        <scale>1 1 1</scale>
-        <link name='link_0'>
-          <pose frame=''>1.18072 -0.52922 0.515 4.2e-05 -0.000394 3e-06</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 -9.8 0 -0 0</acceleration>
-          <wrench>0 0 -0.196 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='compound_gear'>
-        <pose frame=''>1.02565 -0.282021 0.515011 -0.000121 -0.000141 -1e-05</pose>
-        <scale>1 1 1</scale>
-        <link name='link_1'>
-          <pose frame=''>1.02565 -0.282019 0.515011 -0.000121 -0.000141 -1e-05</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 -1e-06 -0.004325 0.044704 0.05556 0</acceleration>
-          <wrench>0 0 -8.7e-05 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='gear1'>
-        <pose frame=''>0.981978 -0.003389 0.515017 -0.000345 0.000586 -1.2e-05</pose>
-        <scale>1 1 1</scale>
-        <link name='link_2'>
-          <pose frame=''>0.981978 -0.003389 0.515017 -0.000345 0.000586 -1.2e-05</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 -9.8 0 -0 0</acceleration>
-          <wrench>0 0 -0.196 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='gear2'>
-        <pose frame=''>1.14726 -0.078692 0.515044 -0.000832 6.5e-05 -0</pose>
-        <scale>1 1 1</scale>
-        <link name='link_4'>
-          <pose frame=''>1.14726 -0.078692 0.515044 -0.000832 6.5e-05 -0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 -9.8 0 -0 0</acceleration>
-          <wrench>0 0 -0.196 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='gear2_1'>
-        <pose frame=''>1.1164 0.206339 0.515131 -0.000843 0.002003 -1.6e-05</pose>
-        <scale>1 1 1</scale>
-        <link name='link_3'>
-          <pose frame=''>1.1164 0.206339 0.515131 -0.000843 0.002003 -1.6e-05</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 -9.8 0 -0 0</acceleration>
-          <wrench>0 0 -0.196 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='ground_plane'>
-        <pose frame=''>0 0 0 0 -0 0</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose frame=''>0 0 0 0 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='low_table_rotate'>
-        <pose frame=''>1.1914 -0.007726 0 0 -0 0</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose frame=''>1.1914 -0.007726 0 0 0 -1.5708</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='shaft1'>
-        <pose frame=''>1.01296 0.518672 0.514991 6.8e-05 -2.8e-05 0</pose>
-        <scale>1 1 1</scale>
-        <link name='link_5'>
-          <pose frame=''>1.01296 0.518672 0.514991 6.8e-05 -2.8e-05 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 -9.8 0 -0 0</acceleration>
-          <wrench>0 0 -0.196 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='shaft2'>
-        <pose frame=''>0.956814 0.402356 0.514998 0.000538 6.3e-05 -1e-06</pose>
-        <scale>1 1 1</scale>
-        <link name='link_6'>
-          <pose frame=''>0.956814 0.402356 0.514998 0.000538 6.3e-05 -1e-06</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 -9.8 0 -0 0</acceleration>
-          <wrench>0 0 -0.196 0 -0 0</wrench>
-        </link>
-      </model>
-      <light name='sun'>
-        <pose frame=''>0 0 10 0 -0 0</pose>
-      </light>
-    </state>
     <model name='low_table_rotate'>
       <link name='link'>
         <pose frame=''>0 0 0 0 0 -1.5708</pose>
@@ -597,11 +498,11 @@
       </link>
       <static>1</static>
       <allow_auto_disable>1</allow_auto_disable>
-      <pose frame=''>1.5256 -0.123724 0 0 -0 0</pose>
+      <pose frame=''>1.1914 -0.007726 0 0 -0 0</pose>
     </model>
     <model name='base_plate'>
       <link name='link_0'>
-        <pose frame=''>5e-06 3e-06 0 0 -0 0</pose>
+        <pose frame=''>0 0 0 0 0 0</pose>
         <inertial>
           <mass>0.02</mass>
           <inertia>
@@ -701,11 +602,11 @@
       </link>
       <static>0</static>
       <allow_auto_disable>1</allow_auto_disable>
-      <pose frame=''>1.74124 -0.529223 0 0 -0 0</pose>
+      <pose frame=''>1.18072 -0.529223 0.515 0 0 0</pose>
     </model>
     <model name='compound_gear'>
       <link name='link_1'>
-        <pose frame=''>5e-06 2e-06 0 0 -0 0</pose>
+        <pose frame=''>0 0 0 0 0 0 0</pose>
         <inertial>
           <mass>0.02</mass>
           <inertia>
@@ -805,7 +706,7 @@
       </link>
       <static>0</static>
       <allow_auto_disable>1</allow_auto_disable>
-      <pose frame=''>1.80187 -0.282031 0 0 -0 0</pose>
+      <pose frame=''>1.02565 -0.282021 0.515011 0 0 0</pose>
     </model>
     <model name='gear1'>
       <link name='link_2'>
@@ -909,7 +810,7 @@
       </link>
       <static>0</static>
       <allow_auto_disable>1</allow_auto_disable>
-      <pose frame=''>1.81898 -0.131712 0 0 -0 0</pose>
+      <pose frame=''>0.981978 -0.003389 0.515017 0 0 0</pose>
     </model>
     <model name='gear2'>
       <link name='link_4'>
@@ -1013,7 +914,7 @@
       </link>
       <static>0</static>
       <allow_auto_disable>1</allow_auto_disable>
-      <pose frame=''>1.80533 0.024993 0 0 -0 0</pose>
+      <pose frame=''>1.14726 -0.078692 0.515044 0 -0 0</pose>
     </model>
     <model name='gear2_1'>
       <link name='link_3'>
@@ -1117,7 +1018,7 @@
       </link>
       <static>0</static>
       <allow_auto_disable>1</allow_auto_disable>
-      <pose frame=''>1.82268 0.202583 0 0 -0 0</pose>
+      <pose frame=''>1.1164 0.206339 0.515131 0 0 0</pose>
     </model>
     <model name='shaft1'>
       <link name='link_5'>
@@ -1221,7 +1122,7 @@
       </link>
       <static>0</static>
       <allow_auto_disable>1</allow_auto_disable>
-      <pose frame=''>1.81821 0.320601 0 0 -0 0</pose>
+      <pose frame=''>1.01296 0.518672 0.514991 0 0 0</pose>
     </model>
     <model name='shaft2'>
       <link name='link_6'>
@@ -1325,7 +1226,7 @@
       </link>
       <static>0</static>
       <allow_auto_disable>1</allow_auto_disable>
-      <pose frame=''>1.80438 0.402347 0 0 -0 0</pose>
+      <pose frame=''>0.956814 0.402356 0.514998 0 0 0</pose>
     </model>
     <gui fullscreen='0'>
       <camera name='user_camera'>

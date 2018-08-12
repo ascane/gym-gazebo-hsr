@@ -1,9 +1,9 @@
-import time
 import gym
+import gym_gazebo_hsr  # Don't remove this. It registers the env.
+import signal
+
 
 if __name__ == "__main__":
     env = gym.make('gazebo-hsr-assembly-v0')
-    # TODO: How to wait until the env has been launched properly?
-    # time.sleep(10)
-    env.reset()
-    env.close()
+    # env.reset()
+    signal.pause()

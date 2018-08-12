@@ -27,7 +27,7 @@ class GazeboEnv(gym.Env):
             myfile.write("export GAZEBO_MASTER_URI=http://localhost:" + self.port_gazebo + "\n")
 
         # Start roscore
-        subprocess.Popen(['roscore', '-p', self.port])
+        self.proc_core = subprocess.Popen(['roscore', '-p', self.port])
         time.sleep(1)
         print("Roscore launched!")
 
@@ -41,10 +41,8 @@ class GazeboEnv(gym.Env):
         if not path.exists(fullpath):
             raise IOError("File " + fullpath + " does not exist")
 
-        subprocess.Popen(['roslaunch', '-p', self.port, fullpath])
+        self.proc_launch = subprocess.Popen(['roslaunch', '-p', self.port, fullpath])
         print ("Gazebo launched!")
-
-        self.gzclient_pid = 0
 
     def set_ros_master_uri(self):
         os.environ["ROS_MASTER_URI"] = self.ros_master_uri
@@ -59,42 +57,13 @@ class GazeboEnv(gym.Env):
         raise NotImplementedError
 
     def _render(self, mode="human", close=False):
-        if close:
-            tmp = os.popen("ps -Af").read()
-            proccount = tmp.count('gzclient')
-            if proccount > 0:
-                if self.gzclient_pid != 0:
-                    os.kill(self.gzclient_pid, signal.SIGTERM)
-                    os.wait()
-            return
-
-        tmp = os.popen("ps -Af").read()
-        proccount = tmp.count('gzclient')
-        if proccount < 1:
-            subprocess.Popen("gzclient")
-            self.gzclient_pid = int(subprocess.check_output(["pidof","-s","gzclient"]))
-        else:
-            self.gzclient_pid = 0
+        pass
 
     def _close(self):
-        # Kill gzclient, gzserver and roscore
-        tmp = os.popen("ps -Af").read()
-        gzclient_count = tmp.count('gzclient')
-        gzserver_count = tmp.count('gzserver')
-        roscore_count = tmp.count('roscore')
-        rosmaster_count = tmp.count('rosmaster')
-
-        if gzclient_count > 0:
-            os.system("killall -9 gzclient")
-        if gzserver_count > 0:
-            os.system("killall -9 gzserver")
-        if rosmaster_count > 0:
-            os.system("killall -9 rosmaster")
-        if roscore_count > 0:
-            os.system("killall -9 roscore")
-
-        if (gzclient_count or gzserver_count or roscore_count or rosmaster_count >0):
-            os.wait()
+        self.proc_launch.terminate()
+        self.proc_core.terminate()
+        self.proc_launch.wait()
+        self.proc_core.wait()
 
     def _configure(self):
         # TODO
