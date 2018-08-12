@@ -1,25 +1,25 @@
 from gazebo_env import GazeboEnv
-import rospy
-import random
-import time
-from actionlib import SimpleActionClient
-from gazebo_msgs.srv import *
 from gazebo_msgs.msg import ModelState, ModelStates
-from control_msgs.msg import FollowJointTrajectoryGoal, FollowJointTrajectoryAction
+from gazebo_msgs.srv import SetModelState
+import hsrb_interface
+from hsrb_interface import geometry
+import random
+import rospy
 from std_srvs.srv import Empty
-from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+import time
 
 model_names = ["base_plate", "compound_gear", "gear1", "gear2", "gear2_1", "shaft1", "shaft2"]
 arm_joint_names = ["arm_lift_joint", "arm_flex_joint", "arm_roll_joint", "wrist_flex_joint", "wrist_roll_joint"]
+table_xmin, table_xmax, table_ymin, table_ymax, table_z = 0.9, 1.4, -0.5, 0.5, 1
 
 
 class GazeboHsrAssemblyEnv(GazeboEnv):
     def __init__(self):
         # Launch the simulation with the given launch file
         GazeboEnv.__init__(self, "gazebo_hsr_assembly-v0.launch")
+        self.robot = None
         self.model_states = None
         rospy.Subscriber("/gazebo/model_states", ModelStates, self._model_states_callback)
-        pass
 
     @staticmethod
     def _set_model_state(modelState):
@@ -57,7 +57,7 @@ class GazeboHsrAssemblyEnv(GazeboEnv):
         except rospy.ServiceException as e:
             print("Service call failed: %s" % e)
 
-        GazeboHsrAssemblyEnv._randomize_models(0.9, 1.4, -0.5, 0.5, 1)
+        GazeboHsrAssemblyEnv._randomize_models(table_xmin, table_xmax, table_ymin, table_ymax, table_z)
         # TODO: reset the robot
 
     def _model_states_callback(self, data):
@@ -66,7 +66,40 @@ class GazeboHsrAssemblyEnv(GazeboEnv):
     def _get_observation(self):
         return self.model_states
 
+    def _move(self, axis, distance):
+        if self.robot is None:
+            self.robot = hsrb_interface.Robot()
+        whole_body = self.robot.get('whole_body')
+        whole_body.move_end_effector_by_line(axis, distance)
+
     def _step(self, action):
+        # Big move
+        if action == 0:
+            self._move(geometry.Vector3(1, 0, 0), 0.1)
+        elif action == 1:
+            self._move(geometry.Vector3(-1, 0, 0), 0.1)
+        elif action == 2:
+            self._move(geometry.Vector3(0, 1, 0), 0.1)
+        elif action == 3:
+            self._move(geometry.Vector3(0, -1, 0), 0.1)
+        elif action == 4:
+            self._move(geometry.Vector3(0, 0, 1), 0.1)
+        elif action == 5:
+            self._move(geometry.Vector3(0, 0, -1), 0.1)
+        # Small moves
+        elif action == 6:
+            self._move(geometry.Vector3(1, 0, 0), 0.01)
+        elif action == 7:
+            self._move(geometry.Vector3(-1, 0, 0), 0.01)
+        elif action == 8:
+            self._move(geometry.Vector3(0, 1, 0), 0.01)
+        elif action == 9:
+            self._move(geometry.Vector3(0, -1, 0), 0.01)
+        elif action == 10:
+            self._move(geometry.Vector3(0, 0, 1), 0.01)
+        elif action == 11:
+            self._move(geometry.Vector3(0, 0, -1), 0.01)
+
         observation = self._get_observation()
         reward = 0
         done = False

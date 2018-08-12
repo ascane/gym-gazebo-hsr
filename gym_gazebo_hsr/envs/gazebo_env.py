@@ -1,11 +1,10 @@
 import gym
-import rospy
 import os
-import signal
-import subprocess
-import time
 from os import path
 import random
+import rospy
+import subprocess
+import time
 
 
 class GazeboEnv(gym.Env):
@@ -32,8 +31,6 @@ class GazeboEnv(gym.Env):
         print("Roscore launched!")
 
         # Launch the simulation with the given launchfile name
-        rospy.init_node('gym', anonymous=True)
-
         if launchfile.startswith("/"):
             fullpath = launchfile
         else:
@@ -43,6 +40,11 @@ class GazeboEnv(gym.Env):
 
         self.proc_launch = subprocess.Popen(['roslaunch', '-p', self.port, fullpath])
         print ("Gazebo launched!")
+        rospy.wait_for_service('/gazebo/reset_world')
+
+        # In order for a ROS node to use simulation time according to the /clock topic, the /use_sim_time parameter must
+        # be set to true before the node is initialized. This is done in the launchfile. See wiki.ros.org/Clock.
+        rospy.init_node('gym', anonymous=True)
 
     def set_ros_master_uri(self):
         os.environ["ROS_MASTER_URI"] = self.ros_master_uri
