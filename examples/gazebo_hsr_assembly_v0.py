@@ -5,5 +5,8 @@ import signal
 
 if __name__ == "__main__":
     env = gym.make('gazebo-hsr-assembly-v0')
-    # env.reset()
+
+    env.reset()
+    env.step(0)
+
     signal.pause()
