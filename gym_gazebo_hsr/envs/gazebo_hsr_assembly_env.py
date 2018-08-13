@@ -31,6 +31,20 @@ class GazeboHsrAssemblyEnv(GazeboEnv):
             print("Service call failed: %s" % e)
 
     @staticmethod
+    def _reset_robot_position_orientation():
+        model_state = ModelState()
+        model_state.model_name = "hsrb"
+        model_state.pose.position.x = 0
+        model_state.pose.position.y = 0
+        model_state.pose.position.z = 0
+        model_state.pose.orientation.x = 0
+        model_state.pose.orientation.y = 0
+        model_state.pose.orientation.z = 0
+        model_state.pose.orientation.w = 1
+        model_state.reference_frame = "world"
+        GazeboHsrAssemblyEnv._set_model_state(model_state)
+
+    @staticmethod
     def _randomize_model_position(model_name, xmin, xmax, ymin, ymax, z):
         model_state = ModelState()
         model_state.model_name = model_name
@@ -58,7 +72,14 @@ class GazeboHsrAssemblyEnv(GazeboEnv):
             print("Service call failed: %s" % e)
 
         GazeboHsrAssemblyEnv._randomize_models(table_xmin, table_xmax, table_ymin, table_ymax, table_z)
-        # TODO: reset the robot
+        # Reset the robot
+        try:
+            GazeboHsrAssemblyEnv._reset_robot_position_orientation()
+            whole_body = self._get_robot().get('whole_body')
+            whole_body.move_to_neutral()
+            self._gripper_command(0.6)  # Open the gripper
+        except Exception as e:
+            print("Exception: %s" % e)
 
     def _model_states_callback(self, data):
         self.model_states = data
@@ -66,67 +87,69 @@ class GazeboHsrAssemblyEnv(GazeboEnv):
     def _get_observation(self):
         return self.model_states
 
-    def _set_robot_if_unset(self):
+    def _get_robot(self):
         if self.robot is None:
             self.robot = hsrb_interface.Robot()
+        return self.robot
 
     def _move(self, axis, distance):
-        self._set_robot_if_unset()
-        whole_body = self.robot.get('whole_body')
+        whole_body = self._get_robot().get('whole_body')
         whole_body.move_end_effector_by_line(axis, distance)
 
     def _gripper_apply_force(self, effort):
-        self._set_robot_if_unset()
-        gripper = self.robot.get('gripper', self.robot.Items.END_EFFECTOR)
+        robot = self._get_robot()
+        gripper = robot.get('gripper', robot.Items.END_EFFECTOR)
         delicate = False
         if 0.2 <= effort <= 0.6:
             delicate = True
         gripper.apply_force(effort, delicate)
 
     def _gripper_command(self, open_angle):
-        self._set_robot_if_unset()
-        gripper = self.robot.get('gripper', self.robot.Items.END_EFFECTOR)
+        robot = self._get_robot()
+        gripper = robot.get('gripper', robot.Items.END_EFFECTOR)
         gripper.command(open_angle)
 
     def _step(self, action):
-        # Big move
-        if action == 0:
-            self._move(geometry.Vector3(1, 0, 0), 0.1)
-        elif action == 1:
-            self._move(geometry.Vector3(-1, 0, 0), 0.1)
-        elif action == 2:
-            self._move(geometry.Vector3(0, 1, 0), 0.1)
-        elif action == 3:
-            self._move(geometry.Vector3(0, -1, 0), 0.1)
-        elif action == 4:
-            self._move(geometry.Vector3(0, 0, 1), 0.1)
-        elif action == 5:
-            self._move(geometry.Vector3(0, 0, -1), 0.1)
-        # Small moves
-        elif action == 6:
-            self._move(geometry.Vector3(1, 0, 0), 0.01)
-        elif action == 7:
-            self._move(geometry.Vector3(-1, 0, 0), 0.01)
-        elif action == 8:
-            self._move(geometry.Vector3(0, 1, 0), 0.01)
-        elif action == 9:
-            self._move(geometry.Vector3(0, -1, 0), 0.01)
-        elif action == 10:
-            self._move(geometry.Vector3(0, 0, 1), 0.01)
-        elif action == 11:
-            self._move(geometry.Vector3(0, 0, -1), 0.01)
-        # Gripper
-        elif action == 12:
-            self._gripper_command(1.2)  # Open
-        elif action == 13:
-            self._gripper_command(0.0)  # Close
-        elif action == 14:
-            self._gripper_apply_force(0.5)
-        elif action == 15:
-            self._gripper_apply_force(1.0)
-
-        else:
-            raise NotImplementedError
+        try:
+            # Big move
+            if action == 0:
+                self._move(geometry.Vector3(1, 0, 0), 0.1)
+            elif action == 1:
+                self._move(geometry.Vector3(-1, 0, 0), 0.1)
+            elif action == 2:
+                self._move(geometry.Vector3(0, 1, 0), 0.1)
+            elif action == 3:
+                self._move(geometry.Vector3(0, -1, 0), 0.1)
+            elif action == 4:
+                self._move(geometry.Vector3(0, 0, 1), 0.1)
+            elif action == 5:
+                self._move(geometry.Vector3(0, 0, -1), 0.1)
+            # Small moves
+            elif action == 6:
+                self._move(geometry.Vector3(1, 0, 0), 0.01)
+            elif action == 7:
+                self._move(geometry.Vector3(-1, 0, 0), 0.01)
+            elif action == 8:
+                self._move(geometry.Vector3(0, 1, 0), 0.01)
+            elif action == 9:
+                self._move(geometry.Vector3(0, -1, 0), 0.01)
+            elif action == 10:
+                self._move(geometry.Vector3(0, 0, 1), 0.01)
+            elif action == 11:
+                self._move(geometry.Vector3(0, 0, -1), 0.01)
+            # Gripper
+            elif action == 12:
+                self._gripper_command(1.2)  # Open
+            elif action == 13:
+                self._gripper_command(0.0)  # Close
+            elif action == 14:
+                self._gripper_apply_force(0.5)
+            elif action == 15:
+                self._gripper_apply_force(1.0)
+            else:
+                raise NotImplementedError
+        except Exception:
+            print("Action " + str(action) + " is unavailable")
 
         observation = self._get_observation()
         reward = 0

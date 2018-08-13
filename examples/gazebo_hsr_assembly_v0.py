@@ -25,4 +25,6 @@ if __name__ == "__main__":
     env.step(14)
     env.step(15)
 
+    env.reset()
+
     signal.pause()
