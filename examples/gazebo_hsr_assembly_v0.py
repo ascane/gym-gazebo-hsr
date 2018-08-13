@@ -20,5 +20,9 @@ if __name__ == "__main__":
     env.step(9)
     env.step(10)
     env.step(11)
+    env.step(12)
+    env.step(13)
+    env.step(14)
+    env.step(15)
 
     signal.pause()

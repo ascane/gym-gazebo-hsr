@@ -66,11 +66,27 @@ class GazeboHsrAssemblyEnv(GazeboEnv):
     def _get_observation(self):
         return self.model_states
 
-    def _move(self, axis, distance):
+    def _set_robot_if_unset(self):
         if self.robot is None:
             self.robot = hsrb_interface.Robot()
+
+    def _move(self, axis, distance):
+        self._set_robot_if_unset()
         whole_body = self.robot.get('whole_body')
         whole_body.move_end_effector_by_line(axis, distance)
+
+    def _gripper_apply_force(self, effort):
+        self._set_robot_if_unset()
+        gripper = self.robot.get('gripper', self.robot.Items.END_EFFECTOR)
+        delicate = False
+        if 0.2 <= effort <= 0.6:
+            delicate = True
+        gripper.apply_force(effort, delicate)
+
+    def _gripper_command(self, open_angle):
+        self._set_robot_if_unset()
+        gripper = self.robot.get('gripper', self.robot.Items.END_EFFECTOR)
+        gripper.command(open_angle)
 
     def _step(self, action):
         # Big move
@@ -99,6 +115,18 @@ class GazeboHsrAssemblyEnv(GazeboEnv):
             self._move(geometry.Vector3(0, 0, 1), 0.01)
         elif action == 11:
             self._move(geometry.Vector3(0, 0, -1), 0.01)
+        # Gripper
+        elif action == 12:
+            self._gripper_command(1.2)  # Open
+        elif action == 13:
+            self._gripper_command(0.0)  # Close
+        elif action == 14:
+            self._gripper_apply_force(0.5)
+        elif action == 15:
+            self._gripper_apply_force(1.0)
+
+        else:
+            raise NotImplementedError
 
         observation = self._get_observation()
         reward = 0
