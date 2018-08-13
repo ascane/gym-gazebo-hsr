@@ -77,7 +77,7 @@ class GazeboHsrAssemblyEnv(GazeboEnv):
             GazeboHsrAssemblyEnv._reset_robot_position_orientation()
             whole_body = self._get_robot().get('whole_body')
             whole_body.move_to_neutral()
-            self._gripper_command(0.6)  # Open the gripper
+            self._gripper_command(0.3)  # Open the gripper a little bit
         except Exception as e:
             print("Exception: %s" % e)
 
@@ -148,8 +148,8 @@ class GazeboHsrAssemblyEnv(GazeboEnv):
                 self._gripper_apply_force(1.0)
             else:
                 raise NotImplementedError
-        except Exception:
-            print("Action " + str(action) + " is unavailable")
+        except Exception as e:
+            print("Action %d is unavailable: %s" % (action, e))
 
         observation = self._get_observation()
         reward = 0
