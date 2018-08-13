@@ -5,7 +5,7 @@ Work in progress
 Instructions:
 - Add `gym-gazebo-hsr` to PYTHONPATH
 - Add  `.../models` to GAZEBO_MODEL_PATH
-- In /opt/ros/kinetics/python2.7/dist-packages/hsrb_interface/gripper.py
+- In /opt/ros/kinetic/python2.7/dist-packages/hsrb_interface/end_effector.py
     * In method `command`
     add
     ```python
