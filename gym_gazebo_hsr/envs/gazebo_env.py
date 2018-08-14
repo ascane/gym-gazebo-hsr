@@ -42,6 +42,8 @@ class GazeboEnv(gym.Env):
         print ("Gazebo launched!")
         rospy.wait_for_service('/gazebo/reset_world')
 
+        self.proc_gzclient = None
+
         # In order for a ROS node to use simulation time according to the /clock topic, the /use_sim_time parameter must
         # be set to true before the node is initialized. This is done in the launchfile. See wiki.ros.org/Clock.
         rospy.init_node('gym', anonymous=True)
@@ -58,10 +60,24 @@ class GazeboEnv(gym.Env):
         # Implemented in subclass
         raise NotImplementedError
 
+    def _terminate_gzclient(self):
+        # self.proc_gzclient.poll() is None means child process has not terminated
+        if self.proc_gzclient is not None and self.proc_gzclient.poll() is None:
+            self.proc_gzclient.terminate()
+            self.proc_gzclient.wait()
+
     def _render(self, mode="human", close=False):
-        pass
+        if close:
+            self._terminate_gzclient()
+            return
+
+        if self.proc_gzclient is None or self.proc_gzclient.poll() is not None:
+            self.proc_gzclient = subprocess.Popen("gzclient")
+
 
     def _close(self):
+        # Terminate gzclient, roslaunch and roscore
+        self._terminate_gzclient()
         self.proc_launch.terminate()
         self.proc_core.terminate()
         self.proc_launch.wait()

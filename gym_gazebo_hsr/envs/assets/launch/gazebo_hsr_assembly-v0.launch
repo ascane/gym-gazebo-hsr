@@ -6,5 +6,6 @@
     <arg name="robot_pos" value="-x 0 -y 0 -z 0 -Y 0" />
     <arg name="use_laser_odom" value="false" />
     <arg name="rviz" value="false" />
+    <arg name="gui" value="false" />
   </include>
 </launch>

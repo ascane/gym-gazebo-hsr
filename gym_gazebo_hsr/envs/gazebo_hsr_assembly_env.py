@@ -80,6 +80,8 @@ class GazeboHsrAssemblyEnv(GazeboEnv):
             self._gripper_command(0.3)  # Open the gripper a little bit
         except Exception as e:
             print("Exception: %s" % e)
+        # Return initial OpenAI gym observation
+        return self._get_observation()
 
     def _model_states_callback(self, data):
         self.model_states = data
