@@ -12,7 +12,6 @@ if __name__ == "__main__":
     env.step(0)
     env.step(1)
 
-    print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< rendering <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     env.render()
 
     env.step(2)
@@ -21,7 +20,6 @@ if __name__ == "__main__":
     env.step(5)
     env.step(6)
 
-    print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< rendering closing <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     env.render(close=True)
 
     env.step(7)
@@ -31,7 +29,6 @@ if __name__ == "__main__":
     env.step(11)
     env.step(12)
 
-    print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< rendering again <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     env.render()
 
     env.step(13)
@@ -40,7 +37,6 @@ if __name__ == "__main__":
 
     env.reset()
 
-    print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< rendering again 2 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     env.render()
 
     time.sleep(5)

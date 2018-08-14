@@ -16,10 +16,6 @@ class GazeboEnv(gym.Env):
         random_number = random.randint(10000, 15000)
         self.port = '11311'  # str(random_number) # os.environ["ROS_PORT_SIM"]
         self.port_gazebo = str(random_number + 1)  # os.environ["ROS_PORT_SIM"]
-        # os.environ["ROS_MASTER_URI"] = "http://localhost:" + self.port
-        # os.environ["GAZEBO_MASTER_URI"] = "http://localhost:" + self.port_gazebo
-        #
-        # self.ros_master_uri = os.environ["ROS_MASTER_URI"];
 
         with open("log.txt", "a") as myfile:
             myfile.write("export ROS_MASTER_URI=http://localhost:" + self.port + "\n")
@@ -48,16 +44,13 @@ class GazeboEnv(gym.Env):
         # be set to true before the node is initialized. This is done in the launchfile. See wiki.ros.org/Clock.
         rospy.init_node('gym', anonymous=True)
 
-    def set_ros_master_uri(self):
-        os.environ["ROS_MASTER_URI"] = self.ros_master_uri
+    def _reset(self):
+        # Implemented in subclass
+        raise NotImplementedError
 
     def _step(self, action):
         # Implement this method in every subclass
         # Perform a step in gazebo. E.g. move the robot
-        raise NotImplementedError
-
-    def _reset(self):
-        # Implemented in subclass
         raise NotImplementedError
 
     def _terminate_gzclient(self):
@@ -73,7 +66,6 @@ class GazeboEnv(gym.Env):
 
         if self.proc_gzclient is None or self.proc_gzclient.poll() is not None:
             self.proc_gzclient = subprocess.Popen("gzclient")
-
 
     def _close(self):
         # Terminate gzclient, roslaunch and roscore
