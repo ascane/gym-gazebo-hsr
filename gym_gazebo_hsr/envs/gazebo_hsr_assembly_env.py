@@ -1,6 +1,6 @@
 import argparse
 from gazebo_env import GazeboEnv
-from gazebo_msgs.msg import ModelState, ModelStates
+from gazebo_msgs.msg import LinkStates, ModelState, ModelStates
 from gazebo_msgs.srv import SetModelState
 import hsrb_interface
 from hsrb_interface import geometry
@@ -16,19 +16,53 @@ parser.add_argument('--world', type=str,
 args = parser.parse_args()
 
 if args.world == 'three_cubes':
-    model_names = ["box_red", "box_green", "box_blue"]
     launch_file = "gazebo_hsr_three_cubes-v0.launch"
+    moving_object_model_names = ["box_red", "box_green", "box_blue"]
+    model_names = ['ground_plane', 'low_table_rotate', 'box_red', 'box_green', 'box_blue', 'hsrb']
+    link_names = ['ground_plane::link', 'low_table_rotate::link', 'box_red::link_1', 'box_green::link_2',
+                  'box_blue::link_3', 'hsrb::base_footprint', 'hsrb::arm_lift_link', 'hsrb::arm_flex_link',
+                  'hsrb::arm_roll_link', 'hsrb::wrist_flex_link', 'hsrb::wrist_ft_sensor_mount_link',
+                  'hsrb::wrist_ft_sensor_frame', 'hsrb::hand_l_proximal_link', 'hsrb::hand_l_spring_proximal_link',
+                  'hsrb::hand_l_mimic_distal_link', 'hsrb::hand_l_distal_link', 'hsrb::hand_motor_dummy_link',
+                  'hsrb::hand_r_proximal_link', 'hsrb::hand_r_spring_proximal_link', 'hsrb::hand_r_mimic_distal_link',
+                  'hsrb::hand_r_distal_link', 'hsrb::base_roll_link', 'hsrb::base_l_drive_wheel_link',
+                  'hsrb::base_l_passive_wheel_x_frame', 'hsrb::base_l_passive_wheel_y_frame',
+                  'hsrb::base_l_passive_wheel_z_link',
+                  'hsrb::base_r_drive_wheel_link', 'hsrb::base_r_passive_wheel_x_frame',
+                  'hsrb::base_r_passive_wheel_y_frame',
+                  'hsrb::base_r_passive_wheel_z_link', 'hsrb::torso_lift_link', 'hsrb::head_pan_link',
+                  'hsrb::head_tilt_link']
 elif args.world == 'assembly':
-    model_names = ["base_plate", "compound_gear", "gear1", "gear2", "gear2_1", "shaft1", "shaft2"]
     launch_file = "gazebo_hsr_assembly-v0.launch"
+    moving_object_model_names = ["base_plate", "compound_gear", "gear1", "gear2", "gear2_1", "shaft1", "shaft2"]
+    model_names = ['ground_plane', 'low_table_rotate', 'base_plate', 'compound_gear', 'gear1', 'gear2', 'gear2_1',
+                   'shaft1', 'shaft2', 'hsrb']
+    link_names = ['ground_plane::link', 'low_table_rotate::link', 'base_plate::link_0', 'compound_gear::link_1',
+                  'gear1::link_2', 'gear2::link_4', 'gear2_1::link_3', 'shaft1::link_5', 'shaft2::link_6',
+                  'hsrb::base_footprint', 'hsrb::arm_lift_link', 'hsrb::arm_flex_link', 'hsrb::arm_roll_link',
+                  'hsrb::wrist_flex_link', 'hsrb::wrist_ft_sensor_mount_link', 'hsrb::wrist_ft_sensor_frame',
+                  'hsrb::hand_l_proximal_link', 'hsrb::hand_l_spring_proximal_link', 'hsrb::hand_l_mimic_distal_link',
+                  'hsrb::hand_l_distal_link', 'hsrb::hand_motor_dummy_link', 'hsrb::hand_r_proximal_link',
+                  'hsrb::hand_r_spring_proximal_link', 'hsrb::hand_r_mimic_distal_link', 'hsrb::hand_r_distal_link',
+                  'hsrb::base_roll_link', 'hsrb::base_l_drive_wheel_link', 'hsrb::base_l_passive_wheel_x_frame',
+                  'hsrb::base_l_passive_wheel_y_frame', 'hsrb::base_l_passive_wheel_z_link',
+                  'hsrb::base_r_drive_wheel_link',
+                  'hsrb::base_r_passive_wheel_x_frame', 'hsrb::base_r_passive_wheel_y_frame',
+                  'hsrb::base_r_passive_wheel_z_link',
+                  'hsrb::torso_lift_link', 'hsrb::head_pan_link', 'hsrb::head_tilt_link']
+else:
+    raise NotImplementedError
 
+model_names_dict = {model_names[i]: i for i in range(len(model_names))}
+link_names_dict = {link_names[i]: i for i in range(len(link_names))}
 arm_joint_names = ["arm_lift_joint", "arm_flex_joint", "arm_roll_joint", "wrist_flex_joint", "wrist_roll_joint"]
 table_xmin, table_xmax, table_ymin, table_ymax, table_z = 0.9, 1.4, -0.5, 0.5, 1
 
 
 class HsrState(object):
     def __init__(self):
-        self.model_states = None
+        self.model_states = None  # gazebo_msgs.msgModelStates
+        self.link_states = None  # gazebo_msgs.msgLinkStates
         self.hand_image = None  # uint8[]
         self.head_center_image = None  # uint8[]
         self.head_l_image = None  # uint8[]
@@ -42,6 +76,7 @@ class GazeboHsrAssemblyEnv(GazeboEnv):
         self.robot = None
         self.state = HsrState()
         rospy.Subscriber("/gazebo/model_states", ModelStates, self._model_states_callback)
+        rospy.Subscriber("/gazebo/link_states", LinkStates, self._link_states_callback)
         rospy.Subscriber("/hsrb/hand_camera/image_raw/compressed", CompressedImage, self._hand_image_callback)
         rospy.Subscriber("/hsrb/head_center_camera/image_raw/compressed", CompressedImage,
                          self._head_center_image_callback)
@@ -52,6 +87,9 @@ class GazeboHsrAssemblyEnv(GazeboEnv):
 
     def _model_states_callback(self, data):
         self.state.model_states = data
+
+    def _link_states_callback(self, data):
+        self.state.link_states = data
 
     def _hand_image_callback(self, data):
         self.state.hand_image = data.data
@@ -101,9 +139,9 @@ class GazeboHsrAssemblyEnv(GazeboEnv):
     @staticmethod
     def _randomize_models(xmin, xmax, ymin, ymax, z):
         # Put the objects somewhere else to prevent obstructing other objects.
-        for i, model_name in enumerate(model_names):
+        for i, model_name in enumerate(moving_object_model_names):
             GazeboHsrAssemblyEnv._randomize_model_position(model_name, 10 + i, 10.1 + i, 10, 10.1, 0)
-        for model_name in model_names:
+        for model_name in moving_object_model_names:
             GazeboHsrAssemblyEnv._randomize_model_position(model_name, xmin, xmax, ymin, ymax, z)
             time.sleep(1)
 
@@ -125,9 +163,6 @@ class GazeboHsrAssemblyEnv(GazeboEnv):
         except Exception as e:
             print("Exception: %s" % e)
         # Return initial OpenAI gym observation
-        return self._get_observation()
-
-    def _get_observation(self):
         return self.state
 
     def _get_robot(self):
@@ -194,8 +229,13 @@ class GazeboHsrAssemblyEnv(GazeboEnv):
         except Exception as e:
             print("Action %d is unavailable: %s" % (action, e))
 
-        observation = self._get_observation()
+        observation = self.state
         reward = 0
         done = False
         info = None
         return observation, reward, done, info
+
+    def get_hand_position(self):
+        l_pos = self.state.link_states.pose[link_names_dict['hsrb::hand_l_mimic_distal_link']].position
+        r_pos = self.state.link_states.pose[link_names_dict['hsrb::hand_r_mimic_distal_link']].position
+        return geometry.vector3((l_pos.x + r_pos.x) * 0.5, (l_pos.y + r_pos.y) * 0.5, (l_pos.z + r_pos.z) * 0.5)
