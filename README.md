@@ -26,3 +26,7 @@ Instructions:
     client.send_goal(goal)
     ```
 
+How to run:
+(replace ```git/``` by your repository)
+- run ```python git/gym-gazebo-hsr/examples/gazebo_hsr_assembly_v0.py  --world='three_cubes'```
+- run ```python git/gym-gazebo-hsr/examples/gazebo_hsr_assembly_v0.py  --world='assembly'```
