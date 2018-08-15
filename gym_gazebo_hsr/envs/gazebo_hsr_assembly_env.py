@@ -235,7 +235,14 @@ class GazeboHsrAssemblyEnv(GazeboEnv):
         info = None
         return observation, reward, done, info
 
+    def get_model_pose(self, model_name):
+        return self.state.model_states.pose[model_names_dict[model_name]]
+
+    def get_link_pose(self, link_name):
+        return self.state.link_states.pose[link_names_dict[link_name]]
+
     def get_hand_position(self):
-        l_pos = self.state.link_states.pose[link_names_dict['hsrb::hand_l_mimic_distal_link']].position
-        r_pos = self.state.link_states.pose[link_names_dict['hsrb::hand_r_mimic_distal_link']].position
+        l_pos = self.get_link_pose('hsrb::hand_l_mimic_distal_link').position
+        r_pos = self.get_link_pose('hsrb::hand_r_mimic_distal_link').position
         return geometry.vector3((l_pos.x + r_pos.x) * 0.5, (l_pos.y + r_pos.y) * 0.5, (l_pos.z + r_pos.z) * 0.5)
+
