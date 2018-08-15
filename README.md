@@ -29,4 +29,13 @@ Instructions:
 How to run:
 (replace ```git/``` by your repository)
 - run ```python git/gym-gazebo-hsr/examples/gazebo_hsr_assembly_v0.py  --world='three_cubes'```
+   <p float="left">
+     <img src="images/three_cubes_1.png" height="310" />
+     <img src="images/three_cubes_2.png" height="310" /> 
+   </p>
 - run ```python git/gym-gazebo-hsr/examples/gazebo_hsr_assembly_v0.py  --world='assembly'```
+   <p float="left">
+     <img src="images/assembly_1.png" height="285" />
+     <img src="images/assembly_2.png" height="285" /> 
+   </p>
+
