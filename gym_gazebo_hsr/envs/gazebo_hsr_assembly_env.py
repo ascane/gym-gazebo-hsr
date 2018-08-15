@@ -4,6 +4,7 @@ from gazebo_msgs.msg import LinkStates, ModelState, ModelStates
 from gazebo_msgs.srv import SetModelState
 import hsrb_interface
 from hsrb_interface import geometry
+import math
 import random
 import rospy
 from sensor_msgs.msg import CompressedImage
@@ -230,9 +231,10 @@ class GazeboHsrAssemblyEnv(GazeboEnv):
             print("Action %d is unavailable: %s" % (action, e))
 
         observation = self.state
-        reward = 0
-        done = False
+        reward = self._reward()
+        done = False if reward < 0.9 else True
         info = None
+
         return observation, reward, done, info
 
     def get_model_pose(self, model_name):
@@ -246,3 +248,21 @@ class GazeboHsrAssemblyEnv(GazeboEnv):
         r_pos = self.get_link_pose('hsrb::hand_r_mimic_distal_link').position
         return geometry.vector3((l_pos.x + r_pos.x) * 0.5, (l_pos.y + r_pos.y) * 0.5, (l_pos.z + r_pos.z) * 0.5)
 
+    @staticmethod
+    def norm2(v1, v2):
+        return math.sqrt(math.pow(v1.x - v2.x, 2) + math.pow(v1.y - v2.y, 2) + math.pow(v1.z - v2.z, 2))
+
+    def _reward(self):  # Green box on top of red box
+        if args.world == 'three_cubes':
+            box_green_position = self.get_model_pose("box_green").position
+            box_red_position = self.get_model_pose("box_red").position
+            dist_z = box_green_position.z - box_red_position.z
+            if dist_z < 0.09 or dist_z > 0.11:
+                return 0
+            box_red_position.z = box_green_position.z
+            dist_xy = GazeboHsrAssemblyEnv.norm2(box_green_position, box_red_position)
+            if dist_xy > 0.1:
+                return 0
+            return 1 if dist_xy < 0.05 else 1 - 10 * dist_xy
+        else:
+            raise NotImplementedError
