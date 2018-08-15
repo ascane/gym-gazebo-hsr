@@ -6,6 +6,7 @@ import hsrb_interface
 from hsrb_interface import geometry
 import random
 import rospy
+from sensor_msgs.msg import CompressedImage
 from std_srvs.srv import Empty
 import time
 
@@ -25,20 +26,51 @@ arm_joint_names = ["arm_lift_joint", "arm_flex_joint", "arm_roll_joint", "wrist_
 table_xmin, table_xmax, table_ymin, table_ymax, table_z = 0.9, 1.4, -0.5, 0.5, 1
 
 
+class HsrState(object):
+    def __init__(self):
+        self.model_states = None
+        self.hand_image = None  # uint8[]
+        self.head_center_image = None  # uint8[]
+        self.head_l_image = None  # uint8[]
+        self.head_r_image = None  # uint8[]
+
+
 class GazeboHsrAssemblyEnv(GazeboEnv):
     def __init__(self):
         # Launch the simulation with the given launch file
         GazeboEnv.__init__(self, launch_file)
         self.robot = None
-        self.model_states = None
+        self.state = HsrState()
         rospy.Subscriber("/gazebo/model_states", ModelStates, self._model_states_callback)
+        rospy.Subscriber("/hsrb/hand_camera/image_raw/compressed", CompressedImage, self._hand_image_callback)
+        rospy.Subscriber("/hsrb/head_center_camera/image_raw/compressed", CompressedImage,
+                         self._head_center_image_callback)
+        rospy.Subscriber("/hsrb/head_l_stereo_camera/image_rect_color/compressed", CompressedImage,
+                         self._head_l_image_callback)
+        rospy.Subscriber("/hsrb/head_r_stereo_camera/image_rect_color/compressed", CompressedImage,
+                         self._head_r_image_callback)
+
+    def _model_states_callback(self, data):
+        self.state.model_states = data
+
+    def _hand_image_callback(self, data):
+        self.state.hand_image = data.data
+
+    def _head_center_image_callback(self, data):
+        self.state.head_center_image = data.data
+
+    def _head_l_image_callback(self, data):
+        self.state.head_l_image = data.data
+
+    def _head_r_image_callback(self, data):
+        self.state.head_r_image = data.data
 
     @staticmethod
-    def _set_model_state(modelState):
+    def _set_model_state(model_state):
         rospy.wait_for_service('/gazebo/set_model_state')
         try:
             set_model_state_client = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
-            set_model_state_client(modelState)
+            set_model_state_client(model_state)
         except rospy.ServiceException as e:
             print("Service call failed: %s" % e)
 
@@ -95,11 +127,8 @@ class GazeboHsrAssemblyEnv(GazeboEnv):
         # Return initial OpenAI gym observation
         return self._get_observation()
 
-    def _model_states_callback(self, data):
-        self.model_states = data
-
     def _get_observation(self):
-        return self.model_states
+        return self.state
 
     def _get_robot(self):
         if self.robot is None:
