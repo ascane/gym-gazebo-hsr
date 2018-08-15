@@ -1,3 +1,4 @@
+import argparse
 from gazebo_env import GazeboEnv
 from gazebo_msgs.msg import ModelState, ModelStates
 from gazebo_msgs.srv import SetModelState
@@ -8,7 +9,18 @@ import rospy
 from std_srvs.srv import Empty
 import time
 
-model_names = ["base_plate", "compound_gear", "gear1", "gear2", "gear2_1", "shaft1", "shaft2"]
+parser = argparse.ArgumentParser()
+parser.add_argument('--world', type=str,
+                    help='optional, which world to launch, three_cubes or assembly', default='three_cubes')
+args = parser.parse_args()
+
+if args.world == 'three_cubes':
+    model_names = ["box_red", "box_green", "box_blue"]
+    launch_file = "gazebo_hsr_three_cubes-v0.launch"
+elif args.world == 'assembly':
+    model_names = ["base_plate", "compound_gear", "gear1", "gear2", "gear2_1", "shaft1", "shaft2"]
+    launch_file = "gazebo_hsr_assembly-v0.launch"
+
 arm_joint_names = ["arm_lift_joint", "arm_flex_joint", "arm_roll_joint", "wrist_flex_joint", "wrist_roll_joint"]
 table_xmin, table_xmax, table_ymin, table_ymax, table_z = 0.9, 1.4, -0.5, 0.5, 1
 
@@ -16,7 +28,7 @@ table_xmin, table_xmax, table_ymin, table_ymax, table_z = 0.9, 1.4, -0.5, 0.5, 1
 class GazeboHsrAssemblyEnv(GazeboEnv):
     def __init__(self):
         # Launch the simulation with the given launch file
-        GazeboEnv.__init__(self, "gazebo_hsr_assembly-v0.launch")
+        GazeboEnv.__init__(self, launch_file)
         self.robot = None
         self.model_states = None
         rospy.Subscriber("/gazebo/model_states", ModelStates, self._model_states_callback)
