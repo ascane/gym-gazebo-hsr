@@ -1,10 +1,12 @@
 import argparse
+import copy
 from gazebo_env import GazeboEnv
 from gazebo_msgs.msg import LinkStates, ModelState, ModelStates
 from gazebo_msgs.srv import SetModelState
 import hsrb_interface
 from hsrb_interface import geometry
 import math
+import numpy as np
 import random
 import rospy
 from sensor_msgs.msg import CompressedImage
@@ -56,7 +58,10 @@ else:
 
 model_names_dict = {model_names[i]: i for i in range(len(model_names))}
 link_names_dict = {link_names[i]: i for i in range(len(link_names))}
+
 arm_joint_names = ["arm_lift_joint", "arm_flex_joint", "arm_roll_joint", "wrist_flex_joint", "wrist_roll_joint"]
+hand_gripper_link_names = ['hsrb::arm_lift_link', 'hsrb::arm_flex_link', 'hsrb::arm_roll_link', 'hsrb::wrist_flex_link',
+                           'hsrb::hand_l_mimic_distal_link', 'hsrb::hand_r_mimic_distal_link']
 table_xmin, table_xmax, table_ymin, table_ymax, table_z = 0.9, 1.4, -0.5, 0.5, 1
 
 
@@ -64,10 +69,40 @@ class HsrState(object):
     def __init__(self):
         self.model_states = None  # gazebo_msgs.msgModelStates
         self.link_states = None  # gazebo_msgs.msgLinkStates
-        self.hand_image = None  # uint8[]
-        self.head_center_image = None  # uint8[]
-        self.head_l_image = None  # uint8[]
-        self.head_r_image = None  # uint8[]
+        self.hand_image = None  # int array
+        self.head_center_image = None  # int array
+        self.head_l_image = None  # int array
+        self.head_r_image = None  # int array
+
+    def to_array(self):
+        result = []
+        # self may be changed during to_array thus causing problems.
+        hs = copy.deepcopy(self)
+        # for model_name in moving_object_model_names + ['hsrb']:
+        #     pose = self.model_states.pose[model_names_dict[model_name]]
+        #     result.extend([pose.position.x, pose.position.y, pose.position.z])
+        #     result.extend([pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w])
+        # for link_name in hand_gripper_link_names:
+        #     pose = self.model_states.pose[model_names_dict[link_name]]
+        #     result.extend([pose.position.x, pose.position.y, pose.position.z])
+        #     result.extend([pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w])
+
+        for pose in hs.model_states.pose:
+            result.extend([pose.position.x, pose.position.y, pose.position.z])
+            result.extend([pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w])
+        result.extend([0.0] * (7 * (len(model_names) - len(hs.model_states.pose))))
+        for pose in hs.link_states.pose:
+            result.extend([pose.position.x, pose.position.y, pose.position.z])
+            result.extend([pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w])
+        result.extend([0.0] * (7 * (len(link_names) - len(hs.link_states.pose))))
+        result.extend(hs.head_l_image / 256.0)
+        # The size of head_l_image varies. Pad with 0 to make the network input size a constant.
+        result.extend([0.0] * (65536 - len(hs.head_l_image)))
+        result.extend(hs.head_r_image / 256.0)
+        # The size of head_r_image varies. Pad with 0 to make the network input size a constant.
+        result.extend([0.0] * (65536 - len(hs.head_r_image)))
+
+        return result
 
 
 class GazeboHsrAssemblyEnv(GazeboEnv):
@@ -93,16 +128,16 @@ class GazeboHsrAssemblyEnv(GazeboEnv):
         self.state.link_states = data
 
     def _hand_image_callback(self, data):
-        self.state.hand_image = data.data
+        self.state.hand_image = np.fromstring(data.data, np.uint8)
 
     def _head_center_image_callback(self, data):
-        self.state.head_center_image = data.data
+        self.state.head_center_image = np.fromstring(data.data, np.uint8)
 
     def _head_l_image_callback(self, data):
-        self.state.head_l_image = data.data
+        self.state.head_l_image = np.fromstring(data.data, np.uint8)
 
     def _head_r_image_callback(self, data):
-        self.state.head_r_image = data.data
+        self.state.head_r_image = np.fromstring(data.data, np.uint8)
 
     @staticmethod
     def _set_model_state(model_state):
