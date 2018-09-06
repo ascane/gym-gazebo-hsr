@@ -181,7 +181,9 @@ class GazeboHsrAssemblyEnv(GazeboEnv):
             GazeboHsrAssemblyEnv._randomize_model_position(model_name, xmin, xmax, ymin, ymax, z)
             time.sleep(1)
 
-    def _reset(self):
+    def reset(self):
+        self.state = HsrState()
+
         rospy.wait_for_service('/gazebo/reset_world')
         try:
             reset_world_client = rospy.ServiceProxy('/gazebo/reset_world', Empty)
@@ -223,7 +225,7 @@ class GazeboHsrAssemblyEnv(GazeboEnv):
         gripper = robot.get('gripper', robot.Items.END_EFFECTOR)
         gripper.command(open_angle)
 
-    def _step(self, action):
+    def step(self, action):
         try:
             # Big move
             if action == 0:

@@ -44,11 +44,11 @@ class GazeboEnv(gym.Env):
         # be set to true before the node is initialized. This is done in the launchfile. See wiki.ros.org/Clock.
         rospy.init_node('gym', anonymous=True)
 
-    def _reset(self):
+    def reset(self):
         # Implemented in subclass
         raise NotImplementedError
 
-    def _step(self, action):
+    def step(self, action):
         # Implement this method in every subclass
         # Perform a step in gazebo. E.g. move the robot
         raise NotImplementedError
@@ -59,7 +59,7 @@ class GazeboEnv(gym.Env):
             self.proc_gzclient.terminate()
             self.proc_gzclient.wait()
 
-    def _render(self, mode="human", close=False):
+    def render(self, mode="human", close=False):
         if close:
             self._terminate_gzclient()
             return
@@ -67,7 +67,7 @@ class GazeboEnv(gym.Env):
         if self.proc_gzclient is None or self.proc_gzclient.poll() is not None:
             self.proc_gzclient = subprocess.Popen("gzclient")
 
-    def _close(self):
+    def close(self):
         # Terminate gzclient, roslaunch and roscore
         self._terminate_gzclient()
         self.proc_launch.terminate()
@@ -77,11 +77,11 @@ class GazeboEnv(gym.Env):
 
     def _configure(self):
         # TODO
-        # From OpenAI API: Provides runtime configuration to the enviroment
+        # From OpenAI API: Provides runtime configuration to the environment
         # Maybe set the Real Time Factor?
         pass
 
-    def _seed(self):
+    def seed(self):
         # TODO
         # From OpenAI API: Sets the seed for this env's random number generator(s)
         pass
